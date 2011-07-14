@@ -2,13 +2,14 @@
 <html>
 <head>
 <meta charset="UTF-8" />
+<base href="http://<?=$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]?>" />
 <link rel="stylesheet" href="blueprint/screen.css" type="text/css" media="screen" /> 
 <link rel="stylesheet" href="blueprint/print.css" type="text/css" media="print" /> 
 <!--[if lte IE 8]>
 		<link rel="stylesheet" href="blueprint/ie.css" type="text/css" media="screen" />
 <![endif]-->
-<link rel="stylesheet" type="text/css" href="index.css">
-<script type="text/javascript" src="jquery.js"></script>
+<link rel="stylesheet" type="text/css" href="css/index.css">
+<script type="text/javascript" src="js/jquery.js"></script>
 <title>jQuery Custom SelectBox v0.1 (Fully Css Based)</title>
 </head>
 <body>
@@ -57,6 +58,9 @@
 						<span class="span-4 last">
 							<a id="removeCustomSelectBox" href="#">Remove</a>
 						</span>
+						<span class="span-4 last">
+							<a id="getSingleValue" href="#">Value</a>
+						</span>
 					</section>		
 					<section style="margin-top:15px;" class="prepend-5 span-4 last">
 						<span class="span-4 last">
@@ -68,6 +72,9 @@
 						<span class="span-4 last">
 							<a id="multipleRemoveCustomSelectBox" href="#">Remove</a>
 						</span>
+						<span class="span-4 last">
+							<a id="getMultipleValue" href="#">Value</a>
+						</span>
 					</section>
 				</article>
 			</article>
@@ -75,7 +82,7 @@
 				Copyleft <?=date("Y")?>
 			</footer>
 		</section>
-<script type="text/javascript" src="customSelectBox.js"></script>
-<script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="js/customSelectBox.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
 </body>
 </html> 
