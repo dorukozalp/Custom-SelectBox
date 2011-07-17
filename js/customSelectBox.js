@@ -61,9 +61,9 @@
 			 onRemove: function(){},
 			 onUpdate: function(){}
 	   	},
-	   	$this = this,
 	   	Document = $(document),
-	   	debug = function($obj) {
+	   	$this = this,
+		debug = function($obj) {
 			  if($this.data('opts').debug === true){
 	  		 	  try{
 	  				  if (window.console && window.console.log){
@@ -78,15 +78,15 @@
 		debugTime = function($obj) {
 	  		if($this.data('opts').debug === true){
 	  			try{
-	  				  if (window.console && window.console.time){
-	  					  window.console.time($obj);
-	  					  window.console.log($obj + ' Started!');
-	  				  }
-	  			  }
-	  			  catch(err){
-	  			 	  
-	  			  }
-	  		}
+				  if (window.console && window.console.time){
+					  window.console.time($obj);
+					  window.console.log($obj + ' Started!');
+				  }
+	  			}
+	  			catch(err){
+	  				
+	  			}	
+			}
 		},
 		debugTimeEnd = function($obj) {
 			if($this.data('opts').debug === true){
@@ -100,81 +100,278 @@
 	  			 	  
 	  			  }
 	  		}
-		};
+		},
+		generateCustomOptions = function(){
+			
+			debugTime('Custom Options');
+			
+			//Set Custom Options Start
+		 	var $data = $this.data(PLUGIN_NAMESPACE),
+			 	activeOptionClass = $data.activeOptionClass,
+			 	customOptions = new Array(), //An Array Containing Custom Options List
+			 	i = 0,
+			 	multipleItemsContainer = $data.multipleItemsContainer,
+			 	multipleSelectionType = $data.multipleSelectionType,
+			 	optionClass = $data.optionClass,
+			 	optionItem = $data.optionItem,
+			 	selectBoxOptions = $this.children(),
+			 	selectBoxOptionsLength = selectBoxOptions.length,
+			 	wrapperValue = $this.val();
+			 	
+			 while(i < selectBoxOptionsLength){
+			
+				 var option = $(selectBoxOptions[i]),
+				 	 value = option.val(),
+				 	 text = option.text();
+				 
+				 if($data.multiple === true){
+					 switch(multipleSelectionType){
+		 				case 'checkBox':
+		 					
+		 					var checked = 'checked',
+		 						selected = true;
+		 					
+		 					if($.inArray(value, wrapperValue) == -1){
+		 						selected = false;
+		 						checked = false;
+		 					}
+		 					
+		 					customOptions.push('<' + optionItem + ' tabIndex="'+i+'" data-selected="'+selected+'" data-value="'+value+'" class="'+optionClass+'">');
+		 					
+		 					customOptions.push('<'+multipleItemsContainer+'>');
+		 					customOptions.push('<input type="checkbox" id="'+optionClass+'_'+value+'" name="'+optionClass+'[]" value="'+value+'"');
+		 					
+		 					if(checked !== false){
+		 						customOptions.push(' checked="checked"');
+		 					}
+		 					
+		 					customOptions.push(' />');
+		 					customOptions.push('</'+multipleItemsContainer+'>');
+		 					customOptions.push('<'+multipleItemsContainer+'>' + text + '</'+multipleItemsContainer+'>');
+		 					customOptions.push('</'+optionItem+'>');
+		 				break;
+					 }
+				 }else{
+					 
+					 var optSelected = true,
+					 	 optClass = activeOptionClass + ' ' + optionClass;
+					 
+					 if(wrapperValue !== value){
+						 optSelected = false;
+						 optClass = optionClass;
+					 }
+					 
+					 customOptions.push('<' + optionItem + ' tabIndex="'+i+'" data-selected="'+optSelected+'" data-value="'+value+'" class="'+optClass+'">'+text+'</'+optionItem+'>');
+				 }
+				 
+				 i++;
+			 }
+			 
+			 debugTimeEnd('Custom Options');
+			 
+			 //FIXME: Find a Solution ASAP!
+			 if (optionItem === 'li'){
+				 return '<ul>'+customOptions.join('')+'</ul>';
+			 }else{
+				 return customOptions.join('');
+			 }
+		},
+		setSelectBoxValue = function (value) {
+			
+			debugTime('Set SelectBox Value');
+			debug('Value Set: ' + value); 
+			 
+			$this.val(value).trigger('change.'+PLUGIN_NAMESPACE);
+		 	$this.data('opts').onChange.apply();
+		 	
+		 	debugTimeEnd('Set SelectBox Value');
+		},
+		bindEventsToCustomOptions = function(){
+			
+			debugTime('Bind Events To Custom Options');
+			
+			var $data = $this.data(PLUGIN_NAMESPACE),
+				multiple = $data.multiple,
+				optionsContainerItem = $data.optionsContainerItem;
+			
+			//Change Event For Multiple Selectboxes
+			 if(multiple === true){
+				 var optionCheckBoxes = optionsContainerItem.find("input[type='checkbox']");
+			 
+				 optionCheckBoxes.bind('change.'+PLUGIN_NAMESPACE, function(e){
+					 debugTime('Option Change');
+					 e.stopPropagation();
+					 
+					 var checkBox = $(this),
+					 	 optionValue = new Array();
+					 
+					 //TODO: FIX THE BUG!!
+					 //BUG? Something is wrong here..Have no idea...
+			 		 if(checkBox.prop('checked')){
+			 			checkBox.prop('checked', true);
+			 		 }else{
+			 			checkBox.prop('checked', false);
+			 		 }
+			 		
+			 		optionCheckBoxes.filter(':checked').each(function(){
+			 			optionValue.push($(this).val());
+			 		});
+			 		 
+			 		setSelectBoxValue(optionValue);
+			 		debugTimeEnd('Option Change');
+				 });
+				 
+				 optionCheckBoxes.bind('click.'+PLUGIN_NAMESPACE, function(e){
+					 e.stopPropagation();
+				 });
+			 }
+			//Change Event For Multiple Selectboxes
+			 
+			 //Click Events For Custom Options
+			 optionsContainerItem.children().bind('click.'+PLUGIN_NAMESPACE, function(e) {
+				 debugTime('Option Change');
+				 e.stopPropagation();
+				 
+				 var currentOption = $(this),
+				 	 optionValue = currentOption.data('value');
+				 
+				 switch(multiple){
+				 	case false:
+				 		setSelectBoxValue(optionValue);
+				 		$data.wrapperHTML.text(optionValue);
+				 		$this.customSelectBox('close');
+				 	break;
+				 	case true:
+				 		
+				 		var checkBox = $('#' + $data.optionClass + '_' + optionValue);
+				 		
+				 		if(!checkBox.prop('checked')){
+				 			checkBox.prop('checked', true);
+				 		}else{
+				 			checkBox.prop('checked', false);
+				 		}
+				 		
+				 		optionValue = [];
+				 		
+				 		optionCheckBoxes.filter(':checked').each(function(){
+				 			optionValue.push($(this).val());
+				 		});
+				 		
+				 		setSelectBoxValue(optionValue);
+				 	break;
+				 }
+				 debugTimeEnd('Option Change');
+			 });
+			 
+			 //Click Events For Custom Options
+			
+			debugTimeEnd('Bind Events To Custom Options');
+		},
 		
-	var methods = {
+		methods = {
 		init : function( options ){
 			
-			var  $this = $(this);
-			
-			$this.data('opts', $.extend({}, PLUGIN_DEFAULTS, options));
-			
-			if($this.data('opts').autostart === true){
 				return this.each(function(){
-					$(this).customSelectBox('add');
+					
+					$this = $(this);
+					
+					$this.data('opts', $.extend({}, PLUGIN_DEFAULTS, options));
+					
+					//If Item is not a select tag do nothing
+					if(!$this.is('select')){
+						debug('Element is Not a Select Tag!');
+						debug($this);
+						debugTimeEnd('init');
+						return false;
+					}
+					
+					var opts = $this.data('opts');
+					
+						 debugTime('init');
+						
+						 //SET PLUGIN NAMESPACE DATA
+						 $this.data(PLUGIN_NAMESPACE, {
+							 'activeOptionClass': opts.activeOptionClass,
+							 'containerItem': $('<' + opts.containerItem + ' />'),
+							 'multiple': ($this.attr('multiple') === 'multiple' || $this.attr('multiple') === true)? true : false,
+							 'multipleItemsContainer': opts.multipleItemsContainer,
+							 'multipleSelectionType': opts.multipleSelectionType,
+							 'optionClass': opts.optionClass,
+					   	  	 'optionItem': opts.optionItem,
+							 'optionsContainerItem': $('<' + opts.optionContainerItem  + ' />'),
+							 'optionSliderContainerItem': $('<' + opts.optionSliderContainerItem  + ' />'),
+							 'optionSliderArrowItem': $('<' + opts.optionSliderArrowItem  + ' />'),
+							 'wrapperItem': $('<' + opts.wrapperItem  + ' />'),
+							 'wrapperHTML': $('<' + opts.wrapperValueContainer  + ' />')
+					    });
+						//SET PLUGIN NAMESPACE DATA
+						 
+						 debugTimeEnd('init');
+						 
+						 if(opts.autostart === true){
+							 
+							 $(this).customSelectBox('add');
+						 }
 				});
-			}
 		},
 		add : function(){
-			
-			debugTime('Add');
 			
 			//this refers to jQuery Object!
 			   
 			return this.each(function() {
 				
-				var  $this = $(this),
+				$this = $(this);
+				
+				debugTime('Add');
+				
+				debugTime('Set Variables');
+				
+				var  $data = $this.data(PLUGIN_NAMESPACE),
 					 opts = $this.data('opts'),
 					 
-					 activeOptionClass = opts.activeOptionClass,
-					 containerItem = $('<' + opts.containerItem + ' />'),
-			   	  	 customOptions = [], //An Array Containing Custom Options List
+					 containerItem = $data.containerItem,
 			   	  	 elementId = $this.attr('id'),
 			   	 	 elementWidth = (typeof(opts.containerWidth) === 'undefined')? $this.outerWidth() : opts.containerWidth,
 					 elementHeight = (typeof(opts.containerHeight) === 'undefined')? $this.outerHeight() : opts.containerHeight,
-					 multiple = ($this.attr('multiple') === 'multiple' || $this.attr('multiple') === true)? true : false,
-					 multipleSelectionType = opts.multipleSelectionType,
-			   	  	 multipleItemsContainer = opts.multipleItemsContainer,
-			   	  	 optionClass = opts.optionClass,
-			   	  	 optionItem = opts.optionItem,
+					 multiple = $data.multiple,
 			   	  	 optionContainerClass = opts.optionContainerClass,
 			   	  	 optionContainerHeight = opts.optionContainerHeight,
-			   	  	 optionsContainerItem = $('<' + opts.optionContainerItem  + ' />'),
+			   	  	 optionsContainerItem = $data.optionsContainerItem,
 			   	  	 optionContainerWidth = opts.optionContainerWidth,
-			   	  	 optionSliderContainerItem = $('<' + opts.optionSliderContainerItem  + ' />'),
+			   	  	 optionSliderContainerItem = $data.optionSliderContainerItem,
 			   	  	 optionSliderPosition = opts.optionSliderPosition,
-			   	 	 optionSliderArrowItem = $('<' + opts.optionSliderArrowItem  + ' />'),
-				 	 selectBoxOptions = $this.children(),
-					 selectBoxOptionsLength = selectBoxOptions.length,
-				  	 showCustomSlider = opts.showCustomSlider,
+			   	 	 optionSliderArrowItem = $data.optionSliderArrowItem,
+			   	 	 optionItem = $data.optionItem,
+				 	 showCustomSlider = opts.showCustomSlider,
 			   	  	 wrapperItemClass = opts.wrapperItemClass,
 			   	  	 wrapperValueContainer = opts.wrapperValueContainer,
-			   	 	 wrapperItem = $('<' + opts.wrapperItem  + ' />'),
-					 wrapperHTML = $('<' + opts.wrapperValueContainer  + ' />'), 	 
-					 wrapperOption = selectBoxOptions.filter(':selected'),
-					 wrapperText = wrapperOption.text(),
-					 wrapperValue = $this.val();
+			   	 	 wrapperItem = $data.wrapperItem,
+					 wrapperHTML = $data.wrapperHTML, 	 
+					 wrapperText = $this.children(':selected').text();
+					 
+				 debugTimeEnd('Set Variables');
+					 
+				 debug($this);
+				 debug('Width: ' + elementWidth);
+				 debug('Height: ' + elementHeight);
+				 debug('Multiple : ' + multiple);
 			 
-			 debug($this);
-			 debug('Width: ' + elementWidth);
-			 debug('Height: ' + elementHeight);
-			 debug('Multiple : ' + multiple);
-			 
-			 //SET PLUGIN NAMESPACE DATA
-			 $this.data(PLUGIN_NAMESPACE, {
-				 'containerItem': containerItem,
-				 'wrapperItem': wrapperItem,
-				 'optionsContainerItem': optionsContainerItem
-			 });
-			//SET PLUGIN NAMESPACE DATA
-			 
-				 //If Item is already customized do Mothing.
-				 //No Support For Multiple SelectBoxes Yet!
+				 //If Item is already customized do nothing.
 				 if($this.data('custom') === true){
 					 debug('Already Customized!');
+					 debugTimeEnd('Add');
 					 return false;
 				 }
+				 
+				//If Item is not a select tag do nothing
+				if(!$this.is('select')){
+					debug('Element is Not a Select Tag!');
+					debugTimeEnd('Add');
+					return false;
+				}
 			 
+				debugTime('Hide Current SelectBox And Prepare Container');
+				 
 			 	//Hide Current Item
 			 	$this.data('custom', true).hide();
 			 
@@ -183,8 +380,8 @@
 				 	.addClass(opts.containerClass)
 				 	.attr('id', opts.containerItemIdPrefix+ '-' + elementId)
 				 	.css({
-					 	'width': (multiple === false)? elementWidth : 'auto',
-					 	'height': (multiple === false)? elementHeight : 'auto',
+				 	 	'width': (multiple === false)? elementWidth : elementWidth + optionContainerWidth,
+					 	'height': (multiple === false)? elementHeight : optionContainerHeight,
 					 	'line-height': (multiple === false)? elementHeight + 'px' : 'normal'
 					 })
 					.insertAfter($this);
@@ -211,8 +408,8 @@
 					 
 						debug('Show Slider :' + showCustomSlider);
 						 
-					    var optionSliderContainerItemClasses = [],
-					    	optionSliderArrowItemClasses = [];
+					    var optionSliderContainerItemClasses = new Array(),
+					    	optionSliderArrowItemClasses = new Array();
 					    
 					    optionSliderContainerItemClasses.push(opts.optionSliderClass);
 					    optionSliderContainerItemClasses.push(optionSliderPosition);
@@ -233,61 +430,18 @@
 						 containerItem.html(wrapperItem);
 					 }
 					 
-					 //Set Container Items Here End
+					//Set Container Items Here End
 					 
-					 //Set Custom Options Start
-					 var i = 0;
+					debugTimeEnd('Hide Current SelectBox And Prepare Container');
 					 
-					 while(i < selectBoxOptionsLength){
+					//Set Custom Options Start
+					var customOptions = generateCustomOptions();
+					//Set Custom Options Start
 					
-						 var option = $(selectBoxOptions[i]),
-						 	 value = option.val(),
-						 	 text = option.text();
-						 
-						 if(multiple === true){
-							 switch(multipleSelectionType){
-				 				case 'checkBox':
-				 					
-				 					var checked = 'checked';
-				 					
-				 					if($.inArray(value, wrapperValue) !== -1){
-				 						customOptions.push('<' + optionItem + ' tabIndex="'+i+'" data-selected="true" data-value="'+value+'" class="'+optionClass+'">');
-				 					}else{
-				 						customOptions.push('<' + optionItem + ' tabIndex="'+i+'" data-selected="false" data-value="'+value+'" class="'+optionClass+'">');
-				 						checked = false;
-				 					}
-				 					
-				 					customOptions.push('<'+multipleItemsContainer+'>');
-				 					customOptions.push('<input type="checkbox" id="'+optionClass+'_'+value+'" name="'+optionClass+'[]" value="'+value+'"');
-				 					if(checked !== false){
-				 						customOptions.push(' checked="checked"')
-				 					}
-				 					customOptions.push(' />');
-				 					customOptions.push('</'+multipleItemsContainer+'>');
-				 					customOptions.push('<'+multipleItemsContainer+'>' + text + '</'+multipleItemsContainer+'>');
-				 					customOptions.push('</'+optionItem+'>');
-				 				break;
-							 }
-						 }else{
-							 if(wrapperValue == value){
-								 customOptions.push('<' + optionItem + ' tabIndex="'+i+'" data-selected="true" data-value="'+value+'" class="'+ activeOptionClass + ' ' + optionClass+'">'+text+'</'+optionItem+'>');
-							 }else{
-								 customOptions.push('<' + optionItem + ' tabIndex="'+i+'" data-selected="false" data-value="'+value+'" class="'+optionClass+'">'+text+'</'+optionItem+'>');
-							 }
-						 }
-						 
-						 i++;
-					 }
+					debugTime('Append Custom Options To Container');
 					 
-					 customOptions = customOptions.join('');
-					 
-					 //FIXME: Find a Solution ASAP!
-					 if (optionItem === 'li'){
-						 customOptions = '<ul>'+customOptions+'</ul>';
-					 }
-					 
-					 //Append Custom Options to Custom Option Container
-					 optionsContainerItem
+					//Append Custom Options to Custom Option Container
+					optionsContainerItem
 					 	.addClass(optionContainerClass)
 					 	.attr('id', opts.optionsItemIdPrefix + '-' + elementId)
 					 	.css({
@@ -304,10 +458,12 @@
 						 optionsContainerItem.hide();
 					 }
 					 
-					//Append Custom Option Container to Main Container Item
+					 //Append Custom Option Container to Main Container Item
 					 containerItem.append(optionsContainerItem);
 					 
-					 //Set Custom Options End
+					 debugTimeEnd('Append Custom Options To Container');
+					 
+					 debugTime('Bind Events To Containers');
 					 
 					 //Click Event For Option Container
 					 optionsContainerItem.bind('click.'+PLUGIN_NAMESPACE, function(e){
@@ -334,97 +490,24 @@
 					 });
 					 //Click Event For Wrapper
 					 
-					 function setSelectBoxValue(value) {
-						 
-						debug('Value Set: ' + value); 
-						 
-						$this.val(value);
-					 	$this.trigger('change.'+PLUGIN_NAMESPACE);
-					 	
-					 	opts.onChange.call();
-					 }
+					 debugTimeEnd('Bind Events To Containers');
 					 
-					 //Click Events For Custom Options
-					 optionsContainerItem.children().bind('click.'+PLUGIN_NAMESPACE, function(e) {
-						 debugTime('Option Change');
-						 e.stopPropagation();
-						 
-						 var option = $(this),
-						 	 optionValue = option.data('value');
-						 
-						 switch(multiple){
-						 	case false:
-						 		setSelectBoxValue(optionValue);
-						 		wrapperHTML.text(optionValue);
-						 		$this.customSelectBox('close');
-						 	break;
-						 	case true:
-						 		
-						 		var checkBox = $('#' + optionClass + '_' + optionValue);
-						 		
-						 		if(!checkBox.prop('checked')){
-						 			checkBox.prop('checked', true);
-						 		}else{
-						 			checkBox.prop('checked', false);
-						 		}
-						 		
-						 		optionValue = [];
-						 		
-						 		optionCheckBoxes.filter(':checked').each(function(){
-						 			optionValue.push($(this).val());
-						 		});
-						 		
-						 		setSelectBoxValue(optionValue);
-						 	break;
-						 }
-						 debugTimeEnd('Option Change');
-					 });
+					 //Bind Events
+					 bindEventsToCustomOptions();
+					 //Bind Events
 					 
-					 
-					 if(multiple === true){
-						 var optionCheckBoxes = optionsContainerItem.find("input[type='checkbox']");
-					 
-						 optionCheckBoxes.bind('change.'+PLUGIN_NAMESPACE, function(e){
-							 debugTime('Option Change');
-							 e.stopPropagation();
-							 
-							 var checkBox = $(this),
-							 	 optionValue = [];
-							 
-							 //TODO: FIX THE BUG!!
-							 //BUG? Something is wrong here..Have no idea...
-					 		 if(checkBox.prop('checked')){
-					 			checkBox.prop('checked', true);
-					 		 }else{
-					 			checkBox.prop('checked', false);
-					 		 }
-					 		
-					 		optionCheckBoxes.filter(':checked').each(function(){
-					 			optionValue.push($(this).val());
-					 		});
-					 		 
-					 		setSelectBoxValue(optionValue);
-					 		debugTimeEnd('Option Change');
-						 });
-						 
-						 optionCheckBoxes.bind('click.'+PLUGIN_NAMESPACE, function(e){
-							 e.stopPropagation();
-						 });
-					 }
-					 
-					 //Click Events For Custom Options
-					 
-					//Keyboard Events For Document (Not For Multiple Selects)
+					 debugTime('Bind Events To Document');
 					 
 					 //Document Click Event
 					if(multiple === false){
 						Document.bind('click.'+PLUGIN_NAMESPACE, function(e) {
 							if(e.button == 0 && optionsContainerItem.is(':visible')){					
-								$this.customSelectBox('close', opts, wrapperItem, optionsContainerItem);
+								$this.customSelectBox('close');
 							}
 						});
 					}
 					
+					//Keyboard Events For Document (Not For Multiple Selects)
 					//TODO: Somehow Add Keyboard Support For Multiple Selects?
 					if(opts.keyboardEvents === true && multiple === false){
 						Document.bind('keydown.'+PLUGIN_NAMESPACE, function(e) {
@@ -456,22 +539,23 @@
 										break;
 									case 13: //ENTER / RETURN
 									case 27: // ESC
-										$this.closeCustomSelectBox();
+										$this.customSelectBox('close');
 										break;
 								}
 								
 								if(targetOption !== null){
 									currentOption.attr('data-selected', 'false').removeClass('active');
 									targetOption.attr('data-selected', 'true').addClass('active');
-								
-									setSelectBoxValue(targetOption.data('value'));
 									
-									var topPosition = targetOption.attr('tabindex') * targetOption.outerHeight();
+									var targetOptionValue = targetOption.data('value'),
+										topPosition = targetOption.attr('tabindex') * targetOption.outerHeight(),
+										scrollPosition = 0;
+								
+									setSelectBoxValue(targetOptionValue);
+									wrapperHTML.text(targetOptionValue);
 									
 									if(topPosition >= optionContainerHeight){
-										var scrollPosition = topPosition;
-									}else{
-										var scrollPosition = 0;
+										scrollPosition = topPosition;
 									}
 									
 									optionsContainerItem.animate({
@@ -484,10 +568,13 @@
 						});
 					}
 					
+					debugTimeEnd('Bind Events To Document');
+					
 					//Keyboard Events For Document
 					
 					//CallBack
-					 opts.onAdd.call();
+					 debug("Callback For Add");
+					 opts.onAdd.apply();
 					
 					 debug(optionsContainerItem);
 					 debug(wrapperItem);
@@ -495,77 +582,148 @@
 					 debugTimeEnd('Add');
 			});
 		},
-		close : function(wrapperItem, optionsContainerItem){
+		close : function(){
+			
 			debugTime('Close');
 			
-			var $data = $this.data(PLUGIN_NAMESPACE),
-				opts = $this.data('opts');
+			if( $this.data('custom') === true){
 			
-			$data.wrapperItem.data('state', false);
-	 		$data.optionsContainerItem.hide(opts.optionContainerCloseEffect, opts.optionContainerCloseEasingEffect, function(){
-	 			//CallBack
-	 			opts.onClose.call();
-	 		});
+				var $data = $this.data(PLUGIN_NAMESPACE),
+					opts = $this.data('opts');
+				
+				if(!$data.multiple){
+					$data.wrapperItem.data('state', false);
+			 		$data.optionsContainerItem.hide(opts.optionContainerCloseEffect, opts.optionContainerCloseEasingEffect, function(){
+			 			//CallBack
+			 			debug("Callback For Close");
+			 			opts.onClose.apply();
+			 		});
+				}
+				
+				debug('Closed!');
+			}else{
+				debug("Element is not Customized!");
+			}
 	 		
-	 		debug('Closed!');
 	 		debugTimeEnd('Close');
 		},
 		open : function(){
-			debugTime('Open');
-
-			var $data = $this.data(PLUGIN_NAMESPACE),
-				opts = $this.data('opts');
 			
-			$data.wrapperItem.data('state', true);
-			$data.optionsContainerItem.show(opts.optionContainerOpenEffect, opts.optionContainerOpenEasingEffect, function(){
-	 			//CallBack
-	 			opts.onOpen.call();
-	 		});
+			debugTime('Open');
+			
+			if( $this.data('custom') === true){
+
+				var $data = $this.data(PLUGIN_NAMESPACE),
+					opts = $this.data('opts');
+				
+				if(!$data.multiple){
+					$data.wrapperItem.data('state', true);
+					$data.optionsContainerItem.show(opts.optionContainerOpenEffect, opts.optionContainerOpenEasingEffect, function(){
+						//CallBack
+						debug("Callback For Open");
+						opts.onOpen.apply();
+					});
+				}
+				
+				debug('Opened!');
+			}else{
+				debug("Element is not Customized!");
+			}
 	 		
-	 		debug('Opened!');
 	 		debugTimeEnd('Open');
 		},
 		remove : function(){
+			
 			 debugTime('Remove');
 			 //Remove Container
 			 
-			 var $data = $this.data(PLUGIN_NAMESPACE),
-			 	 opts = $this.data('opts');
+			 if( $this.data('custom') === true){
 			 
-			 $data.containerItem.remove();
-			 $this.data('custom', false).show();
+				 var $data = $this.data(PLUGIN_NAMESPACE),
+				 	 opts = $this.data('opts');
+				 
+				 $data.containerItem.remove();
+				 $this.data('custom', false).show();
+				 
+				 //Remove Document Events As Well!
+				 Document.unbind('click.'+PLUGIN_NAMESPACE);
+				 Document.unbind('keydown.'+PLUGIN_NAMESPACE);
+				 
+				 //CallBack
+				 debug("Callback For Remove");
+				 opts.onRemove.apply();
 			 
-			 //Remove Plugin Namespace Data As Well!
-			 $this.removeData(PLUGIN_NAMESPACE);
-			 
-			 //Remove Document Events As Well!
-			 Document.unbind('click.'+PLUGIN_NAMESPACE);
-			 Document.unbind('keydown.'+PLUGIN_NAMESPACE);
-			 
-			 //CallBack
-			 opts.onRemove.call();
-			 
-			 debug('Removed!');
+				 debug('Removed!');
+			 }else{
+				 debug("Element is not Customized!");
+			 }
 			 debugTimeEnd('Remove');
 		},
 		update : function(){
+			
 			 debugTime('Update');
-			 //CallBack
-			 opts.onUpdate.call();
 			 
-			 debug('Updated!');
+			 if( $this.data('custom') === true){
+			 
+				 var $data = $this.data(PLUGIN_NAMESPACE),
+			 	 	 opts = $this.data('opts'),
+			 	 	 value = $this.val(),
+			 	 	 customOptions = generateCustomOptions();
+				 
+				 debug("Value: " + value);
+				 
+				 if(!$data.multiple){
+					 $data.wrapperHTML.text(value).data('value', value);
+				 }
+				 
+				 $data.optionsContainerItem.html(customOptions);
+				 
+				 //Bind Events Again 
+				 bindEventsToCustomOptions();
+				 //Bind Events Again
+				 
+				 //CallBack
+				 debug("Callback For Update");
+				 opts.onUpdate.apply();
+				 
+				 debug('Updated!');
+			 }else{
+				 debug("Element is not Customized!");
+			 }
+			 
 			 debugTimeEnd('Update');
+		},
+		value : function(){
+			return $this.val();
 		}
 	};
 	
- 	 // Method calling logic
-     if ( methods[method] ) {
-       return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-     } else if ( typeof method === 'object' || ! method ) {
-       return methods.init.apply( this, arguments );       
-     } else {
-       $.error( 'Method ' +  method + ' does not exist' );
-     }
+	 //Copy Paste From jQuery's Plugin Documentation :)	
+	 
+	 try{
+	 	 // Method calling logic
+	     if ( methods[method] ) {
+	       return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+	     } else if ( typeof method === 'object' || ! method ) {
+	       return methods.init.apply( this, arguments );       
+	     } else {
+	       $.error( 'Method ' +  method + ' does not exist' );
+	     }
+	 }catch(Exception){
+		 
+		 	 try{
+				  if (window.console && window.console.log){
+					  window.console.warn('==========Exception==========');
+					  window.console.error(Exception);
+					  window.console.info("Message : " + Exception.message);
+					  window.console.info("File: " + Exception.fileName + ':' + Exception.lineNumber);
+					  window.console.warn('==========Exception==========');
+				  }
+			  }
+			  catch(err){
+			 	  //ignore
+			  }
+	 }
   };
  //End Of Closure
 })( jQuery );

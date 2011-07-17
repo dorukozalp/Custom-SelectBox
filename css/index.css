@@ -52,6 +52,7 @@
 	color:red;
 	position:relative;
 	z-index:999;
+	background-color:#fff;
 }
 
 .uiCustomContainer .uiCustomSlider,

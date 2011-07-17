@@ -6,7 +6,7 @@ $(function(){
 	
 	var options = {
 		autostart: true,
-		debug: true
+		debug: false
 	};
 	
 	$('#updateCustomSelectBox').click(function(e){
@@ -47,11 +47,15 @@ $(function(){
 	
 	$('#getMultipleValue').click(function(e){
 		e.preventDefault();
+		
+		alert($('#multiple-selecbox').customSelectBox('value'));
 	});
 	
 	$('#getSingleValue').click(function(e){
 		e.preventDefault();
+		
+		alert($('#single-selecbox').customSelectBox('value'));
 	});
-	
-   $('.uiSelectBox').customSelectBox(options);
+
+    $('.uiSelectBox').customSelectBox(options);
 });
