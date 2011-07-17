@@ -1,0 +1,137 @@
+@CHARSET "UTF-8";
+
+#multiple-selecbox,
+#single-selecbox{
+	width:100px;
+}
+
+.uiCustomContainer{
+	position:relative;
+}
+
+.uiCustomContainer .uiCustomOptionContainer{
+	z-index:1000;
+	position:absolute;
+	left:0;
+	background: #c5deea; /* Old browsers */
+	background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 31%, #066dab 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(31%,#8abbd7), color-stop(100%,#066dab)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #c5deea 0%,#8abbd7 31%,#066dab 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #c5deea 0%,#8abbd7 31%,#066dab 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #c5deea 0%,#8abbd7 31%,#066dab 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#066dab',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #c5deea 0%,#8abbd7 31%,#066dab 100%); /* W3C */
+	color:red;
+	font-weight:700;
+	text-indent:5px;
+}
+
+.uiCustomContainer .uiCustomOptionContainer .uiCustomOption{
+	border:1px solid #000;
+	cursor:pointer;
+}
+
+.uiCustomContainer .uiCustomOptionContainer .uiCustomOption:hover,
+.uiCustomContainer .uiCustomOptionContainer .uiCustomOption.active{
+	opacity:0.3;
+	filter:alpha(opacity=30);
+}
+
+.uiCustomContainer .uiCustomOptionContainer .uiCustomOption span{
+	line-height:20px;
+}
+
+.uiCustomContainer .uiCustomWrapper{
+	border:1px solid #ccc;
+	box-shadow:2px 2px 2px #ccc inset, -2px -2px 2px #000 inset;
+	border-radius:10px;
+	cursor:pointer;
+	text-align:left;
+	text-indent:5px;
+	text-shadow: 1px 1px 1px #000;
+	color:red;
+	position:relative;
+	z-index:999;
+	background-color:#fff;
+}
+
+.uiCustomContainer .uiCustomSlider,
+.uiCustomContainer .uiCustomSliderArrow{
+	    position:absolute;
+}
+
+.uiCustomContainer .uiCustomSlider{
+    width:16px;
+    height:20px;
+    line-height:20px;
+    background: #c5deea; /* Old browsers */
+	background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 31%, #066dab 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(31%,#8abbd7), color-stop(100%,#066dab)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #c5deea 0%,#8abbd7 31%,#066dab 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #c5deea 0%,#8abbd7 31%,#066dab 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #c5deea 0%,#8abbd7 31%,#066dab 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#066dab',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #c5deea 0%,#8abbd7 31%,#066dab 100%); /* W3C */
+}
+
+.uiCustomContainer .uiCustomSlider.rightSide{
+	right:2px;
+}
+
+.uiCustomContainer .uiCustomSlider.leftSide{
+	left:2px;
+}
+
+.uiCustomContainer .uiCustomSlider.rightSide,
+.uiCustomContainer .uiCustomSlider.leftSide{
+	border-radius:5px;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.down,
+.uiCustomContainer .uiCustomSliderArrow.up{
+	top:6px;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.rightSide.up,
+.uiCustomContainer .uiCustomSliderArrow.rightSide.down{
+	right:2px;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.leftSide.up,
+.uiCustomContainer .uiCustomSliderArrow.leftSide.down{
+	left:2px;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.right,
+.uiCustomContainer .uiCustomSliderArrow.left{
+	top:3px;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.rightSide.right,
+.uiCustomContainer .uiCustomSliderArrow.rightSide.left{
+	right:6px;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.up{
+	border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid red;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.down{
+	border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid red;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.left{
+	border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent; 
+    border-right:8px solid red;
+}
+
+.uiCustomContainer .uiCustomSliderArrow.right{
+	border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid red;
+}
